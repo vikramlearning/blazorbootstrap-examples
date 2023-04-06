@@ -1,0 +1,126 @@
+﻿@page "/employees"
+
+<Grid TItem="Employee"
+      Class="table table-hover table-bordered table-striped"
+      DataProvider="EmployeesDataProvider"
+      Responsive="true">
+    <GridColumn TItem="Employee">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" @onchange="async () => await OnChangeAsync(context)">
+        </div>
+    </GridColumn>
+    <GridColumn TItem="Employee" HeaderText="Id" PropertyName="Id" FilterTextboxWidth="80">
+        @context.Id
+    </GridColumn>
+    <GridColumn TItem="Employee" HeaderText="First Name" PropertyName="FirstName" FilterTextboxWidth="80">
+        @context.FirstName
+    </GridColumn>
+    <GridColumn TItem="Employee" HeaderText="Last Name" PropertyName="LastName" FilterTextboxWidth="80">
+        @context.LastName
+    </GridColumn>
+    <GridColumn TItem="Employee" HeaderText="Email" PropertyName="Email">
+        @context.Email
+    </GridColumn>
+    <GridColumn TItem="Employee" HeaderText="DOJ" PropertyName="DOJ">
+        @context.DOJ
+    </GridColumn>
+    <GridColumn TItem="Employee" HeaderText="Salary" HeaderTextAlignment="Alignment.End" TextAlignment="Alignment.End" PropertyName="Salary" FilterTextboxWidth="80">
+        @context.Salary.ToString("N2")
+    </GridColumn>
+    <GridColumn TItem="Employee" HeaderText="Active" HeaderTextAlignment="Alignment.Center" TextAlignment="Alignment.Center" PropertyName="IsActive">
+        @context.IsActive
+    </GridColumn>
+    <GridColumn TItem="Employee" HeaderText="Action" HeaderTextAlignment="Alignment.Center">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
+            <Button Color="ButtonColor.Primary" Size="Size.Small" @onclick="async () => await EditEmployeeAsync(context)"> Edit </Button>
+            <Button Color="ButtonColor.Danger" Size="Size.Small" @onclick="async () => await DeleteEmployeeAsync(context)"> Delete </Button>
+        </div>
+    </GridColumn>
+</Grid>
+
+<ConfirmDialog @ref="dialog" />
+<Modal @ref="modal" />
+
+@code {
+    private ConfirmDialog dialog = default!;
+    private Modal modal = default!;
+
+    private List<Employee> employees = default!;
+
+    private async Task<GridDataProviderResult<Employee>> EmployeesDataProvider(GridDataProviderRequest<Employee> request)
+    {
+        if (employees is null) // pull employees only one time for client-side filtering, sorting, and paging
+            employees = GetEmployees(); // call a service or an API to pull the employees
+
+        return await Task.FromResult(request.ApplyTo(employees));
+    }
+
+    private List<Employee> GetEmployees()
+    {
+        return new List<Employee>
+        {
+            new Employee { Id = 107, FirstName = "Alice", LastName = "Reddy", Email = "alice@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "AI Engineer", DOJ = new DateOnly(1998, 11, 17), Salary = 7700, IsActive = true },
+            new Employee { Id = 103, FirstName = "Bob", LastName = "Roy", Email = "bob@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "Senior DevOps Engineer", DOJ = new DateOnly(1985, 1, 5), Salary = 19000, IsActive = true },
+            new Employee { Id = 106, FirstName = "John", LastName = "Papa", Email = "john@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "Data Engineer", DOJ = new DateOnly(1995, 4, 17), Salary = 12000, IsActive = true },
+            new Employee { Id = 104, FirstName = "Pop", LastName = "Two", Email = "pop@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "Associate Architect", DOJ = new DateOnly(1985, 6, 8), Salary = 19000, IsActive = false },
+            new Employee { Id = 105, FirstName = "Ronald", LastName = "Dire", Email = "ronald@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "Senior Data Engineer", DOJ = new DateOnly(1991, 8, 23), Salary = 16500.50M, IsActive = true },
+            new Employee { Id = 102, FirstName = "Line", LastName = "K", Email = "line@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "Architect", DOJ = new DateOnly(1977, 1, 12), Salary = 24000, IsActive = true },
+            new Employee { Id = 101, FirstName = "Daniel", LastName = "Potter", Email = "daniel@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "Architect", DOJ = new DateOnly(1977, 1, 12), Salary = 21000, IsActive = true },
+            new Employee { Id = 108, FirstName = "Zayne", LastName = "Simmons", Email = "zayne@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "Data Analyst", DOJ = new DateOnly(1991, 1, 1), Salary = 17850, IsActive = true },
+            new Employee { Id = 109, FirstName = "Isha", LastName = "Davison", Email = "isha@blazorbootstrap.com", Company = "BlazorBootstrap Company", Designation = "App Maker", DOJ = new DateOnly(1996, 7, 1), Salary = 8000, IsActive = true },
+        };
+    }
+
+    private async Task EditEmployeeAsync(Employee employee)
+    {
+        var parameters = new Dictionary<string, object>();
+        parameters.Add("Employee", employee);
+        parameters.Add("OnUpdateCallback", EventCallback.Factory.Create<Employee>(this, UpdateEmployeeAsync));
+        await modal.ShowAsync<EmployeeEdit>(title: "Edit Employee", parameters: parameters);
+    }
+
+    private async Task UpdateEmployeeAsync(Employee employee)
+    {
+        employees.ForEach(x =>
+        {
+            if (x.Id == employee.Id)
+            {
+                x.LastName = employee.LastName + " updated";
+            }
+        });
+
+        await modal.HideAsync();
+    }
+
+    private async Task DeleteEmployeeAsync(Employee employee)
+    {
+        var confirmation = await dialog.ShowAsync(
+            title: "Are you sure you want to delete this?",
+            message1: "This will delete the record. Once deleted can not be rolled back.",
+            message2: "Do you want to proceed?");
+
+        if (confirmation)
+        {
+            // do whatever
+            employees.Remove(employee);
+        }
+        else
+        {
+            // do whatever
+        }
+    }
+
+    private Task OnChangeAsync(Employee employee)
+    {
+        // TODO: 
+        // Add `IsChecked` property in the `Employee` model
+        // Set `IsChecked = "true"`
+        // Do whatever needed based on your requirement
+
+        // Ref:
+        // Conditional css class for grid row: https://demos.blazorbootstrap.com/grid#conditional-css-class-for-grid-row
+        // Conditional css class for grid column: https://demos.blazorbootstrap.com/grid#conditional-css-class-for-grid-column
+
+        return Task.CompletedTask;
+    }
+}

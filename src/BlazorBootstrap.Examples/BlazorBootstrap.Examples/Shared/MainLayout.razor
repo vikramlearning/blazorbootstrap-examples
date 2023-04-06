@@ -22,8 +22,8 @@
 </div>
 
 @code {
-    Sidebar sidebar;
-    IEnumerable<NavItem> navItems;
+    Sidebar sidebar = default!;
+    IEnumerable<NavItem> navItems = default!;
 
     private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
     {
@@ -40,6 +40,7 @@
             new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match=NavLinkMatch.All},
             new NavItem { Id = "2", Href = "/counter", IconName = IconName.PlusSquareFill, Text = "Counter"},
             new NavItem { Id = "3", Href = "/fetchdata", IconName = IconName.Table, Text = "Fetch Data"},
+            new NavItem { Id = "4", Href = "/employees", IconName = IconName.PeopleFill, Text = "Employees"},
         };
 
         return navItems;
