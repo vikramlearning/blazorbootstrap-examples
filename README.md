@@ -23,3 +23,7 @@ Custom Grid Operations:
 
 ## Single / Multiple Rows Selection
 We can write custom logic to check/uncheck the checkbox. Based on the checkbox selection, you can change the row color.
+
+## References:
+- Conditional css class for grid row: https://demos.blazorbootstrap.com/grid#conditional-css-class-for-grid-row
+- Conditional css class for grid column: https://demos.blazorbootstrap.com/grid#conditional-css-class-for-grid-column
